@@ -10,7 +10,7 @@ This project showcases a real-time fraud detection system built in Databricks us
 ### Source layer  
 Two custom Python generators are used:  
 - A customer generator that produces a synthetic Dutch customer base with demographic and behavioural attributes  
-- A continuous transaction generator that emits realistic banking transactions in near real time  
+- A continuous transaction generator that generates banking transactions to simulate the real world scenario
 
 Both datasets serve as inputs to the streaming pipeline.
 
@@ -24,7 +24,7 @@ Implemented using Databricks Auto Loader with PySpark Structured Streaming.
 ### Silver layer  
 Real-time enrichment and fraud feature engineering implemented with PySpark Structured Streaming.  
 - Streaming transaction table is joined with the static customer dimension  
-- Behavioural flags are computed, including:  
+- Suspicious transaction flags are computed, including:  
   - night-time activity  
   - unexpected high transaction amounts  
   - repeated pin-code mistakes  
