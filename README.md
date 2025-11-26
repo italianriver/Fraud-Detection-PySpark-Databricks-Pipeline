@@ -1,18 +1,64 @@
 # Real-Time Fraud Detection Pipeline
 
 ## Welcome  
-This project demonstrates a real-time fraud detection system built in the Databricks environment using PySpark Structured Streaming and Delta Lake. It generates synthetic customers and a continuous stream of transactions, and processes them through a Lakehouse architecture designed to identify suspicious activity. The primary objective is to determine whether a transaction is risky enough to temporarily lock the associated account and require the customer to unlock it through a 2FA verification step.
+This project showcases a real-time fraud detection system built in Databricks using PySpark Structured Streaming and Delta Lake. It simulates a banking environment by generating synthetic customers and continuous transaction streams, then processes them through a Medallion (Bronze–Silver–Gold) architecture to detect suspicious behaviour and determine when an account should be temporarily locked until the user verifies it via 2FA.
 
-## Project architecture  
-The pipeline begins with two Python generators: one creates a synthetic customer base and the other produces an ongoing stream of transactions. 
+---
 
-These are ingested into the Bronze layer using Databricks Auto Loader, with customer data stored as a static Delta table and all incoming transactions captured via a streaming read. An ingestion timestamp is added to maintain auditability.
+## Project architecture
 
-The Silver layer reads the Bronze transaction table as a streaming DataFrame and enriches the live stream by joining it with the static customer lookup table. All fraud-related metrics are computed within this PySpark streaming transformation, including night-time usage, abnormal amounts, pin-code mistakes, category anomalies and country mismatches. Only columns relevant for detection are retained, resulting in an efficient real-time fraud feature model.
+### Source layer  
+Two custom Python generators are used:  
+- A **customer generator** that produces a synthetic Dutch customer base with demographic and behavioural attributes  
+- A **continuous transaction generator** that emits realistic banking transactions in near real time  
 
-The Gold layer aggregates the Silver metrics into a unified severity score. This score determines whether the system would trigger an internal 2FA challenge and lock the account until the customer confirms the activity.  
+Both datasets serve as inputs to the streaming pipeline.
 
-The Consumption layer uses a Databricks dashboard to display incoming suspicious transactions in near real time. The dashboard visualises severity levels and all behavioural indicators that contributed to each decision.
+### Bronze layer  
+Implemented using **Databricks Auto Loader** with PySpark Structured Streaming.  
+- Customer dataset is loaded once into a **static Delta table**  
+- Transactions are streamed into a **Delta table** with automatic schema inference  
+- An **ingestion_timestamp** column is added for auditability  
+- All raw data is preserved as the source of truth  
 
-## Project requirements  
-This project requires PySpark Structured Streaming, Databricks Auto Loader for ingestion, Delta tables for storage, and a continuous Bronze → Silver → Gold transformation flow. Customer and transaction data must be generated synthetically, enriched in real time and evaluated with explainable fraud metrics. The system focuses on operational freshness rather than historisation and provides clear documentation for analytics and FEC teams.
+### Silver layer  
+Real-time enrichment and fraud feature engineering implemented with **PySpark Structured Streaming**.  
+- Streaming transaction table is joined with the static customer dimension  
+- Behavioural flags are computed, including:  
+  - night-time activity  
+  - high-value anomalies  
+  - repeated pin-code mistakes  
+  - high-risk categories  
+  - country mismatch  
+- The output is a clean metrics-focused Silver table containing only fraud-relevant columns  
+
+### Gold layer  
+A scoring layer that determines the severity of the suspicious behaviour.  
+- Flags are summed and mapped to a severity level (1, 2 or 3)  
+- High-severity events represent cases where the bank would:  
+  - temporarily lock the account  
+  - require the customer to unlock it using **2FA**  
+- This layer produces the table consumed by dashboards and analyst workflows  
+
+### Consumption layer  
+A real-time dashboard built with **Databricks SQL**.  
+- Displays suspicious transactions as they occur  
+- Shows severity levels and contributing detection signals  
+- Provides an operational view suitable for FEC teams  
+
+---
+
+## Project requirements
+
+### Objective  
+Build a real-time fraud detection system capable of identifying suspicious transactions and determining whether customer accounts should be temporarily locked pending 2FA verification.
+
+### Specifications  
+- Generate synthetic customer and transaction data using Python  
+- Ingest static and streaming data into **Delta Lake** using Databricks Auto Loader  
+- Implement real-time data processing with **PySpark Structured Streaming**  
+- Perform enrichment and fraud feature engineering in the Silver layer  
+- Compute severity scoring in the Gold layer to support account-lock decisions  
+- Provide a near real-time dashboard for analysts using Databricks SQL  
+- Focus on operational freshness rather than historical warehousing  
+- Maintain clear documentation suitable for analytics and Financial Economic Crime teams
