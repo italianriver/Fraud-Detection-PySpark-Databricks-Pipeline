@@ -1,7 +1,7 @@
 from pyspark.sql import functions as F
 
 silver_stream = spark.readStream.table('fraud_detection.silver.silver_transactions_core')
-gold_checkpoint = '/Volumes/fraud_detection/gold/gold_checkpoints'
+gold_checkpoint = 'path/to/gold-checkpoints'
 
 gold_tx = (silver_stream
       .withColumn(
@@ -11,7 +11,7 @@ gold_tx = (silver_stream
           F.col('flag_pin_mistake') +
           F.col('flag_category') +
           F.col('flag_country')
-      )
+      )                                          
       .withColumn(
           'severity',
           F.when(F.col('flag_count') >= 3, 'high')
