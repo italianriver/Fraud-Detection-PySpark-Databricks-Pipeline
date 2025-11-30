@@ -57,7 +57,7 @@ Build a real-time fraud detection system capable of identifying suspicious trans
 - (Source) Generate synthetic customer and transaction data using Python 🗹
 - (Bronze) Ingest static and streaming data into Delta Lake using Databricks Auto Loader 🗹
 - (Silver) Perform table joins for enrichment and add flags for suspicious transaction behaviour in the Silver layer 🗹
-- (Gold) Compute severity scoring in the Gold layer to support account-lock decisions ☐
+- (Gold) Compute severity scoring in the Gold layer to support account-lock decisions 🗹
 - (Consumption) Provide a near real-time dashboard for analysts using Databricks SQL ☐
 - Implement real-time data processing with PySpark Structured Streaming ☐
 - Maintain clear documentation suitable for analytics and Financial Economic Crime teams ☐
